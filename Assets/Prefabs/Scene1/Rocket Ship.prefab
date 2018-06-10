@@ -478,6 +478,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainThrust: 30
   rcsThrust: 100
+  mainEngine: {fileID: 8300000, guid: 2d3914dd142fa4147bdf5456b5e402c0, type: 3}
+  death: {fileID: 8300000, guid: 174017fb93c1ce54ea592ba1a337c630, type: 3}
+  levelLoad: {fileID: 8300000, guid: 1c4ba193e8d02074389a5071d629842c, type: 3}
 --- !u!135 &135162894905458588
 SphereCollider:
   m_ObjectHideFlags: 1
