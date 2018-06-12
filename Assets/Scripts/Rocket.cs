@@ -7,6 +7,7 @@ public class Rocket : MonoBehaviour {
 
     [SerializeField] float mainThrust = 100f;
     [SerializeField] float rcsThrust = 100f;
+    [SerializeField] float levelLoadDelay = 2f;
 
     [SerializeField] AudioClip mainEngine;
     [SerializeField] AudioClip death;
@@ -22,6 +23,8 @@ public class Rocket : MonoBehaviour {
     enum State { Alive, Dying, Transcending}
     State state = State.Alive;
 
+    bool collisionsDisabled = true;
+
 	// Use this for initialization
 	void Start () {
         rigidBody = GetComponent<Rigidbody>();
@@ -36,12 +39,29 @@ public class Rocket : MonoBehaviour {
             RespondToRotateInput();
             RespondToThrustInput();
         }
-        
+        // todo only if debug on
+        if (Debug.isDebugBuild)
+        {
+            RespondToDebugKeys();
+        }
+    }
+
+    private void RespondToDebugKeys()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            LoadNextLevel();
+        }
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            //toggle collision
+            collisionsDisabled = !collisionsDisabled;
+        }
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        if(state != State.Alive) { return;} //this way only 1 collision happens
+        if(state != State.Alive || !collisionsDisabled) { return;} //this way only 1 collision happens
 
         switch (collision.gameObject.tag)
         {
@@ -64,7 +84,7 @@ public class Rocket : MonoBehaviour {
         audioSource.Stop();
         audioSource.PlayOneShot(death);
         deathParticles.Play();
-        Invoke("LoadFirstLevel", 1f);
+        Invoke("LoadFirstLevel", levelLoadDelay);
     }
 
     private void StartSuccessSequence()
@@ -73,7 +93,7 @@ public class Rocket : MonoBehaviour {
         audioSource.Stop();
         audioSource.PlayOneShot(success);
         successParticles.Play();
-        Invoke("LoadNextLevel", 1f); //parameterise time
+        Invoke("LoadNextLevel", levelLoadDelay);
     }
 
     private void LoadFirstLevel()
@@ -121,7 +141,7 @@ public class Rocket : MonoBehaviour {
 
     private void ApplyThrust()
     {
-        rigidBody.AddRelativeForce(Vector3.up * mainThrust);
+        rigidBody.AddRelativeForce(Vector3.up * mainThrust * Time.deltaTime);
         if (!audioSource.isPlaying) //no layering = no weird sound
         {
             audioSource.PlayOneShot(mainEngine);
